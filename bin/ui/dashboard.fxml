@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="ui.DashboardController">
+
+    <top>
+        <ToolBar>
+            <Label text="Welcome to CryptoTrackr" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button text="Logout" onAction="#handleLogout" />
+        </ToolBar>
+    </top>
+
+    <center>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
+
+            <Separator />
+            
+            <Label text="Your Portfolio" style="-fx-font-size: 16px;" />
+
+            <HBox spacing="10">
+                <TextField fx:id="coinSymbolField" promptText="Coin Symbol" />
+                <TextField fx:id="quantityField" promptText="Quantity" />
+                <Button text="Add to Portfolio" onAction="#handleAddToPortfolio" />
+            </HBox>
+
+            <TableView fx:id="portfolioTable" prefHeight="200">
+                <columns>
+                    <TableColumn fx:id="colPortSymbol" text="Symbol" />
+                    <TableColumn fx:id="colPortQuantity" text="Quantity" />
+                </columns>
+            </TableView>
+
+            <Label text="Live Market Data (Top Coins)" style="-fx-font-size: 16px;" />
+
+            <TableView fx:id="marketTable" prefHeight="300">
+                <columns>
+                    <TableColumn fx:id="colSymbol" text="Symbol" />
+                    <TableColumn fx:id="colName" text="Name" />
+                    <TableColumn fx:id="colPrice" text="Price (USD)" />
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+</BorderPane>

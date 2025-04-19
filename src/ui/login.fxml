@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml" fx:controller="ui.LoginController">
+    <padding>
+        <Insets top="30" bottom="30" left="20" right="20"/>
+    </padding>
+
+    <Label text="CryptoTracker Login" style="-fx-font-size: 20px;" />
+    <TextField fx:id="emailField" promptText="Email" />
+    <PasswordField fx:id="passwordField" promptText="Password" />
+    <Button text="Login" onAction="#handleLogin" />
+    <Button text="Register" onAction="#handleRegister" />
+    <Label fx:id="messageLabel" style="-fx-text-fill: red;" />
+</VBox>
