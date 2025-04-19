@@ -11,18 +11,25 @@ import java.util.List;
 
 public class DashboardController {
 
-	@FXML private TextField coinSymbolField;
+    @FXML private TextField coinSymbolField;
     @FXML private TextField quantityField;
     @FXML private TableView<Coin> portfolioTable;
     @FXML private TableColumn<Coin, String> colPortSymbol;
     @FXML private TableColumn<Coin, Double> colPortQuantity;
-	
+
     @FXML private TableView<Coin> marketTable;
     @FXML private TableColumn<Coin, String> colSymbol;
     @FXML private TableColumn<Coin, String> colName;
     @FXML private TableColumn<Coin, Double> colPrice;
 
-    
+    // --- Temp Portfolio ---
+    @FXML private TextField txtTempName;
+    @FXML private TextField txtTempSymbol;
+    @FXML private TextField txtTempQuantity;
+
+    @FXML private TableView<Coin> tempPortfolioTable;
+    @FXML private TableColumn<Coin, String> tempColSymbol;
+    @FXML private TableColumn<Coin, Double> tempColQuantity;
 
     @FXML
     public void initialize() {
@@ -41,13 +48,16 @@ public class DashboardController {
         colPortSymbol.setCellValueFactory(new PropertyValueFactory<>("symbol"));
         colPortQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
-        loadPortfolio();
-    }
+        // Temp portfolio table setup
+        if (tempColSymbol != null && tempColQuantity != null) {
+            tempColSymbol.setCellValueFactory(new PropertyValueFactory<>("symbol"));
+            tempColQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
-    @FXML
-    public void handleLogout(ActionEvent e) {
-        // Placeholder for future navigation
-        System.out.println("Logout clicked — navigation to be implemented.");
+            // 🟢 This is the key line to avoid NullPointerException
+            tempPortfolioTable.setItems(FXCollections.observableArrayList());
+        }
+
+        loadPortfolio();
     }
 
     private void loadPortfolio() {
@@ -71,5 +81,70 @@ public class DashboardController {
         } catch (NumberFormatException e) {
             System.out.println("Invalid quantity format.");
         }
+    }
+
+    // -------- TEMP PORTFOLIO METHODS --------
+
+    @FXML
+    private void handleAddToTemp() {
+        String name = txtTempName.getText().trim();
+        String symbol = txtTempSymbol.getText().trim();
+        String qtyText = txtTempQuantity.getText().trim();
+
+        if (name.isEmpty() || symbol.isEmpty() || qtyText.isEmpty()) {
+            showAlert("Fill all temp portfolio fields.");
+            return;
+        }
+
+        try {
+            double qty = Double.parseDouble(qtyText);
+            DBHelper.addToTempPortfolio(LoginController.currentUserId, symbol, qty, name);
+            showAlert("Added to temp portfolio: " + name);
+            txtTempSymbol.clear();
+            txtTempQuantity.clear();
+        } catch (NumberFormatException e) {
+            showAlert("Invalid quantity.");
+        }
+    }
+
+    @FXML
+    private void handleViewTemp() {
+        String name = txtTempName.getText().trim();
+        if (name.isEmpty()) {
+            showAlert("Enter temp portfolio name.");
+            return;
+        }
+
+        List<Coin> coins = DBHelper.getTempPortfolio(LoginController.currentUserId, name);
+        ObservableList<Coin> data = FXCollections.observableArrayList(coins);
+        tempPortfolioTable.setItems(data);
+    }
+
+    @FXML
+    private void handleLockTemp() {
+        String name = txtTempName.getText().trim();
+        if (name.isEmpty()) {
+            showAlert("Enter temp portfolio name to lock.");
+            return;
+        }
+
+        DBHelper.lockTempPortfolio(LoginController.currentUserId, name);
+        showAlert("Locked temp portfolio: " + name);
+        txtTempName.clear();
+        tempPortfolioTable.setItems(null);
+    }
+
+    // --- Utility ---
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Info");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    @FXML
+    public void handleLogout(ActionEvent e) {
+        System.out.println("Logout clicked — navigation to be implemented.");
     }
 }

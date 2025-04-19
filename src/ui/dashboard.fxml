@@ -36,6 +36,32 @@
                 </columns>
             </TableView>
 
+            <Separator />
+
+            <!-- 🔵 Temp Portfolio Section -->
+            <Label text="Manage Temp Portfolio" style="-fx-font-size: 16px;" />
+
+            <HBox spacing="10">
+                <TextField fx:id="txtTempName" promptText="Temp Portfolio Name (e.g. Test1)" />
+                <TextField fx:id="txtTempSymbol" promptText="Coin Symbol" />
+                <TextField fx:id="txtTempQuantity" promptText="Quantity" />
+            </HBox>
+
+            <HBox spacing="10">
+                <Button fx:id="btnAddToTemp" text="Add to Temp" onAction="#handleAddToTemp" />
+                <Button fx:id="btnViewTemp" text="View Temp Portfolio" onAction="#handleViewTemp" />
+                <Button fx:id="btnLockTemp" text="Lock Temp Portfolio" onAction="#handleLockTemp" />
+            </HBox>
+
+            <TableView fx:id="tempPortfolioTable" prefHeight="200">
+                <columns>
+                    <TableColumn fx:id="tempColSymbol" text="Symbol" />
+                    <TableColumn fx:id="tempColQuantity" text="Quantity" />
+                </columns>
+            </TableView>
+
+            <Separator />
+
             <Label text="Live Market Data (Top Coins)" style="-fx-font-size: 16px;" />
 
             <TableView fx:id="marketTable" prefHeight="300">
