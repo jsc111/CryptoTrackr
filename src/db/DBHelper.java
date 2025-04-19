@@ -42,6 +42,8 @@ public class DBHelper {
                     "coin_symbol TEXT, " +
                     "quantity REAL, " +
                     "is_temp INTEGER DEFAULT 0)");
+            
+
 
             stmt.close();
             System.out.println("Database connected and tables ready.");
@@ -76,11 +78,16 @@ public class DBHelper {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                coins.add(new Coin(rs.getString("coin_symbol"), rs.getString("coin_symbol"), rs.getDouble("quantity")));
+                String symbol = rs.getString("coin_symbol");
+                double quantity = rs.getDouble("quantity");
+
+                // ✅ Use the correct constructor to set symbol and quantity
+                coins.add(new Coin(symbol, quantity));
             }
         } catch (SQLException e) {
             System.out.println("Error fetching portfolio: " + e.getMessage());
         }
+
         return coins;
     }
 

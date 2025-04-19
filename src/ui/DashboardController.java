@@ -11,16 +11,18 @@ import java.util.List;
 
 public class DashboardController {
 
+	@FXML private TextField coinSymbolField;
+    @FXML private TextField quantityField;
+    @FXML private TableView<Coin> portfolioTable;
+    @FXML private TableColumn<Coin, String> colPortSymbol;
+    @FXML private TableColumn<Coin, Double> colPortQuantity;
+	
     @FXML private TableView<Coin> marketTable;
     @FXML private TableColumn<Coin, String> colSymbol;
     @FXML private TableColumn<Coin, String> colName;
     @FXML private TableColumn<Coin, Double> colPrice;
 
-    @FXML private TextField coinSymbolField;
-    @FXML private TextField quantityField;
-    @FXML private TableView<Coin> portfolioTable;
-    @FXML private TableColumn<Coin, String> colPortSymbol;
-    @FXML private TableColumn<Coin, Double> colPortQuantity;
+    
 
     @FXML
     public void initialize() {
