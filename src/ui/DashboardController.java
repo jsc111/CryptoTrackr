@@ -7,6 +7,7 @@ import javafx.collections.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.event.ActionEvent;
 import model.Coin;
+
 import java.util.List;
 
 public class DashboardController {
@@ -22,14 +23,15 @@ public class DashboardController {
     @FXML private TableColumn<Coin, String> colName;
     @FXML private TableColumn<Coin, Double> colPrice;
 
-    // --- Temp Portfolio ---
     @FXML private TextField txtTempName;
     @FXML private TextField txtTempSymbol;
     @FXML private TextField txtTempQuantity;
-
     @FXML private TableView<Coin> tempPortfolioTable;
     @FXML private TableColumn<Coin, String> tempColSymbol;
     @FXML private TableColumn<Coin, Double> tempColQuantity;
+
+    @FXML private Label lblPortfolioValue; // ✅ Label for main portfolio value
+    @FXML private Label lblTempValue;      // ✅ Label for temp portfolio value
 
     @FXML
     public void initialize() {
@@ -52,8 +54,6 @@ public class DashboardController {
         if (tempColSymbol != null && tempColQuantity != null) {
             tempColSymbol.setCellValueFactory(new PropertyValueFactory<>("symbol"));
             tempColQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-
-            // 🟢 This is the key line to avoid NullPointerException
             tempPortfolioTable.setItems(FXCollections.observableArrayList());
         }
 
@@ -64,6 +64,27 @@ public class DashboardController {
         List<Coin> portfolio = DBHelper.getUserPortfolio(LoginController.currentUserId);
         ObservableList<Coin> data = FXCollections.observableArrayList(portfolio);
         portfolioTable.setItems(data);
+        updatePortfolioValue(data); // ✅ Update main value
+    }
+
+    private void updatePortfolioValue(ObservableList<Coin> portfolio) {
+        double total = 0.0;
+        for (Coin c : portfolio) {
+            total += c.getValue(); // ✅ price * quantity
+        }
+        if (lblPortfolioValue != null) {
+            lblPortfolioValue.setText(String.format("Total Value: $%.2f", total));
+        }
+    }
+
+    private void updateTempPortfolioValue(ObservableList<Coin> tempPortfolio) {
+        double total = 0.0;
+        for (Coin c : tempPortfolio) {
+            total += c.getValue(); // ✅ price * quantity
+        }
+        if (lblTempValue != null) {
+            lblTempValue.setText(String.format("Temp Value: $%.2f", total));
+        }
     }
 
     @FXML
@@ -118,6 +139,7 @@ public class DashboardController {
         List<Coin> coins = DBHelper.getTempPortfolio(LoginController.currentUserId, name);
         ObservableList<Coin> data = FXCollections.observableArrayList(coins);
         tempPortfolioTable.setItems(data);
+        updateTempPortfolioValue(data); // ✅ Update temp portfolio value
     }
 
     @FXML
@@ -132,6 +154,9 @@ public class DashboardController {
         showAlert("Locked temp portfolio: " + name);
         txtTempName.clear();
         tempPortfolioTable.setItems(null);
+        if (lblTempValue != null) {
+            lblTempValue.setText("Temp Value: $0.00"); // Reset after locking
+        }
     }
 
     // --- Utility ---

@@ -36,6 +36,11 @@
                 </columns>
             </TableView>
 
+			<HBox spacing="10">
+    			<Label text="Total Portfolio Value (USD):" style="-fx-font-weight: bold;" />
+    			<Label fx:id="lblPortfolioValue" text="0.00" />
+			</HBox>
+			
             <Separator />
 
             <!-- 🔵 Temp Portfolio Section -->
@@ -59,6 +64,12 @@
                     <TableColumn fx:id="tempColQuantity" text="Quantity" />
                 </columns>
             </TableView>
+			
+			<HBox spacing="10">
+   				<Label text="Temp Portfolio Value (USD):" style="-fx-font-weight: bold;" />
+    			<Label fx:id="lblTempValue" text="0.00" />
+			</HBox>
+			
 
             <Separator />
 

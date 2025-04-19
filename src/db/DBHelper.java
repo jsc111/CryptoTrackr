@@ -94,7 +94,7 @@ public class DBHelper {
         }
     }
 
-    // ✅ Get all coins in a named temp portfolio
+    // ✅ Get all coins in a named temp portfolio (with live prices)
     public static List<Coin> getTempPortfolio(int userId, String tempName) {
         List<Coin> coins = new ArrayList<>();
         String query = "SELECT coin_symbol, quantity FROM portfolios WHERE user_id = ? AND is_temp = 1 AND temp_name = ?";
@@ -105,7 +105,9 @@ public class DBHelper {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                coins.add(new Coin(rs.getString("coin_symbol"), rs.getDouble("quantity")));
+                String symbol = rs.getString("coin_symbol");
+                double quantity = rs.getDouble("quantity");
+                coins.add(Coin.withPrice(symbol, quantity));  // ✅ Include live price
             }
         } catch (SQLException e) {
             System.out.println("Error fetching temp portfolio: " + e.getMessage());
@@ -143,7 +145,7 @@ public class DBHelper {
         return names;
     }
 
-    // ✅ Get user’s locked (real) portfolio
+    // ✅ Get user’s locked (real) portfolio (with live prices)
     public static List<Coin> getUserPortfolio(int userId) {
         List<Coin> coins = new ArrayList<>();
         String query = "SELECT coin_symbol, quantity FROM portfolios WHERE user_id = ? AND is_temp = 0";
@@ -153,7 +155,9 @@ public class DBHelper {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                coins.add(new Coin(rs.getString("coin_symbol"), rs.getDouble("quantity")));
+                String symbol = rs.getString("coin_symbol");
+                double quantity = rs.getDouble("quantity");
+                coins.add(Coin.withPrice(symbol, quantity));  // ✅ Include live price
             }
         } catch (SQLException e) {
             System.out.println("Error fetching portfolio: " + e.getMessage());
