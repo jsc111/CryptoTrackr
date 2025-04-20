@@ -33,14 +33,15 @@
                 <columns>
                     <TableColumn fx:id="colPortSymbol" text="Symbol" />
                     <TableColumn fx:id="colPortQuantity" text="Quantity" />
+                    <TableColumn fx:id="colPortActions" text="Actions" />
                 </columns>
             </TableView>
 
-			<HBox spacing="10">
-    			<Label text="Total Portfolio Value (USD):" style="-fx-font-weight: bold;" />
-    			<Label fx:id="lblPortfolioValue" text="0.00" />
-			</HBox>
-			
+            <HBox spacing="10">
+                <Label text="Total Portfolio Value (USD):" style="-fx-font-weight: bold;" />
+                <Label fx:id="lblPortfolioValue" text="0.00" />
+            </HBox>
+
             <Separator />
 
             <!-- 🔵 Temp Portfolio Section -->
@@ -62,14 +63,14 @@
                 <columns>
                     <TableColumn fx:id="tempColSymbol" text="Symbol" />
                     <TableColumn fx:id="tempColQuantity" text="Quantity" />
+                    <TableColumn fx:id="tempColActions" text="Actions" />
                 </columns>
             </TableView>
-			
-			<HBox spacing="10">
-   				<Label text="Temp Portfolio Value (USD):" style="-fx-font-weight: bold;" />
-    			<Label fx:id="lblTempValue" text="0.00" />
-			</HBox>
-			
+
+            <HBox spacing="10">
+                <Label text="Temp Portfolio Value (USD):" style="-fx-font-weight: bold;" />
+                <Label fx:id="lblTempValue" text="0.00" />
+            </HBox>
 
             <Separator />
 

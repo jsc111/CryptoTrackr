@@ -7,7 +7,9 @@ import javafx.collections.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.event.ActionEvent;
 import model.Coin;
-
+import javafx.scene.layout.HBox;
+import javafx.scene.control.cell.*;
+import javafx.util.Callback;
 import java.util.List;
 
 public class DashboardController {
@@ -17,6 +19,7 @@ public class DashboardController {
     @FXML private TableView<Coin> portfolioTable;
     @FXML private TableColumn<Coin, String> colPortSymbol;
     @FXML private TableColumn<Coin, Double> colPortQuantity;
+    @FXML private TableColumn<Coin, Void> colPortActions; // ✅ NEW
 
     @FXML private TableView<Coin> marketTable;
     @FXML private TableColumn<Coin, String> colSymbol;
@@ -29,9 +32,10 @@ public class DashboardController {
     @FXML private TableView<Coin> tempPortfolioTable;
     @FXML private TableColumn<Coin, String> tempColSymbol;
     @FXML private TableColumn<Coin, Double> tempColQuantity;
+    @FXML private TableColumn<Coin, Void> tempColActions; // ✅ NEW
 
-    @FXML private Label lblPortfolioValue; // ✅ Label for main portfolio value
-    @FXML private Label lblTempValue;      // ✅ Label for temp portfolio value
+    @FXML private Label lblPortfolioValue;
+    @FXML private Label lblTempValue;
 
     @FXML
     public void initialize() {
@@ -49,12 +53,14 @@ public class DashboardController {
         // Portfolio table setup
         colPortSymbol.setCellValueFactory(new PropertyValueFactory<>("symbol"));
         colPortQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        addActionButtonsToPortfolio(); // ✅ Add action buttons
 
-        // Temp portfolio table setup
+        // Temp portfolio setup
         if (tempColSymbol != null && tempColQuantity != null) {
             tempColSymbol.setCellValueFactory(new PropertyValueFactory<>("symbol"));
             tempColQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
             tempPortfolioTable.setItems(FXCollections.observableArrayList());
+            addActionButtonsToTemp(); // ✅ Add action buttons
         }
 
         loadPortfolio();
@@ -64,13 +70,13 @@ public class DashboardController {
         List<Coin> portfolio = DBHelper.getUserPortfolio(LoginController.currentUserId);
         ObservableList<Coin> data = FXCollections.observableArrayList(portfolio);
         portfolioTable.setItems(data);
-        updatePortfolioValue(data); // ✅ Update main value
+        updatePortfolioValue(data);
     }
 
     private void updatePortfolioValue(ObservableList<Coin> portfolio) {
         double total = 0.0;
         for (Coin c : portfolio) {
-            total += c.getValue(); // ✅ price * quantity
+            total += c.getValue();
         }
         if (lblPortfolioValue != null) {
             lblPortfolioValue.setText(String.format("Total Value: $%.2f", total));
@@ -80,7 +86,7 @@ public class DashboardController {
     private void updateTempPortfolioValue(ObservableList<Coin> tempPortfolio) {
         double total = 0.0;
         for (Coin c : tempPortfolio) {
-            total += c.getValue(); // ✅ price * quantity
+            total += c.getValue();
         }
         if (lblTempValue != null) {
             lblTempValue.setText(String.format("Temp Value: $%.2f", total));
@@ -104,7 +110,7 @@ public class DashboardController {
         }
     }
 
-    // -------- TEMP PORTFOLIO METHODS --------
+    // --- TEMP PORTFOLIO METHODS ---
 
     @FXML
     private void handleAddToTemp() {
@@ -139,7 +145,7 @@ public class DashboardController {
         List<Coin> coins = DBHelper.getTempPortfolio(LoginController.currentUserId, name);
         ObservableList<Coin> data = FXCollections.observableArrayList(coins);
         tempPortfolioTable.setItems(data);
-        updateTempPortfolioValue(data); // ✅ Update temp portfolio value
+        updateTempPortfolioValue(data);
     }
 
     @FXML
@@ -155,11 +161,80 @@ public class DashboardController {
         txtTempName.clear();
         tempPortfolioTable.setItems(null);
         if (lblTempValue != null) {
-            lblTempValue.setText("Temp Value: $0.00"); // Reset after locking
+            lblTempValue.setText("Temp Value: $0.00");
         }
     }
 
+    // --- 🔧 Action Button Setup ---
+
+    private void addActionButtonsToPortfolio() {
+        colPortActions.setCellFactory(getActionCellFactory(portfolioTable, false));
+    }
+
+    private void addActionButtonsToTemp() {
+        tempColActions.setCellFactory(getActionCellFactory(tempPortfolioTable, true));
+    }
+
+    private Callback<TableColumn<Coin, Void>, TableCell<Coin, Void>> getActionCellFactory(TableView<Coin> table, boolean isTemp) {
+        return new Callback<>() {
+            @Override
+            public TableCell<Coin, Void> call(final TableColumn<Coin, Void> param) {
+                return new TableCell<>() {
+                    private final Button btnUpdate = new Button("Update");
+                    private final Button btnDelete = new Button("Delete");
+                    private final HBox pane = new HBox(5, btnUpdate, btnDelete);
+
+                    {
+                        btnUpdate.setOnAction(event -> {
+                            Coin coin = getTableView().getItems().get(getIndex());
+                            TextInputDialog dialog = new TextInputDialog(String.valueOf(coin.getQuantity()));
+                            dialog.setTitle("Update Quantity");
+                            dialog.setHeaderText("Update " + coin.getSymbol());
+                            dialog.setContentText("New quantity:");
+                            dialog.showAndWait().ifPresent(input -> {
+                                try {
+                                    double newQty = Double.parseDouble(input);
+                                    if (isTemp) {
+                                        DBHelper.updatePortfolioEntry(LoginController.currentUserId, coin.getSymbol(), newQty, true, null);
+                                        handleViewTemp(); // refresh temp
+                                    } else {
+                                        DBHelper.updatePortfolioEntry(LoginController.currentUserId, coin.getSymbol(), newQty, false, null);
+                                        loadPortfolio(); // refresh main
+                                    }
+                                } catch (NumberFormatException e) {
+                                    showAlert("Invalid number.");
+                                }
+                            });
+                        });
+
+                        btnDelete.setOnAction(event -> {
+                            Coin coin = getTableView().getItems().get(getIndex());
+                            if (isTemp) {
+                                DBHelper.deletePortfolioEntry(LoginController.currentUserId, coin.getSymbol(), true, null);
+                                handleViewTemp(); // refresh temp
+                            } else {
+                                DBHelper.deletePortfolioEntry(LoginController.currentUserId, coin.getSymbol(), false, null);
+                                loadPortfolio(); // refresh main
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(pane);
+                        }
+                    }
+                };
+            }
+        };
+    }
+
     // --- Utility ---
+
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Info");
